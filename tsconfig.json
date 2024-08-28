@@ -1,0 +1,21 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./config/tsconfig.app.json"
+    },
+    {
+      "path": "./config/tsconfig.node.json"
+    }
+  ],
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "src",
+    "src/__tests__",
+    "config/jest.setup.ts"
+  ]
+}
