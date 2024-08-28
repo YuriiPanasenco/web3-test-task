@@ -1,0 +1,58 @@
+/* SelectStyles.css */
+
+.react-select__control {
+    @apply bg-gray-900 border-none rounded-full h-[42px] text-white p-1 px-2 shadow-none hover:bg-gray-800 !important;
+    /* Fully rounded, dark background */
+}
+
+.react-select__value-container {
+    @apply p-0 m-0 gap-1;
+    /* Ensure padding and margin are removed for full rounded look */
+}
+
+.react-select__input-container {
+    @apply text-white !important;
+    /* Input text color */
+}
+
+.react-select__multi-value {
+    @apply bg-blue-500 text-white -ml-1 rounded-full flex items-center px-2 !important;
+    /* Rounded tags with blue background */
+}
+
+.react-select__multi-value__label {
+    @apply text-white !important;
+    /* White text color for tag label */
+}
+
+.react-select__multi-value__remove {
+    @apply text-white hover:bg-blue-800 hover:text-white rounded-full cursor-pointer p-1 !important;
+    /* Rounded remove button with hover effect */
+}
+
+.react-select__placeholder {
+    @apply text-gray-400 !important;
+    @apply text-left !important;
+    /* Placeholder text color */
+}
+
+.react-select__menu {
+    @apply bg-gray-900 mt-1 rounded-md border-none shadow-lg !important;
+    /* Dark dropdown menu */
+}
+
+.react-select__option {
+    @apply text-white bg-gray-900 hover:bg-gray-800 cursor-pointer !important;
+    /* Dark options with hover effect */
+}
+
+.react-select__dropdown-indicator {
+    @apply text-gray-400 hover:text-white !important;
+    /* Indicator arrow color */
+}
+
+.react-select__indicator-separator {
+    @apply hidden !important;
+    /* Remove separator */
+}
+
