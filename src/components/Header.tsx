@@ -31,7 +31,7 @@ const Header: React.FC = () => {
                         )}
 
                         {isAuthenticated ? (
-                            <button onClick={handleLogout} className="text-gray-100 hover:text-red-600 font-medium">
+                            <button onClick={handleLogout} className="bg-gray-900 text-gray-100 p-2 hover:text-red-600 font-medium">
                                 Logout
                             </button>
                         ) : <></>}

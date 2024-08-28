@@ -12,7 +12,7 @@ const LoginPage: React.FC = () => {
     return (
         <button
             onClick={handleLogin}
-            className="text-gray-100 hover:text-red-600 font-medium"
+            className="bg-gray-900 text-gray-100 p-2 hover:text-red-600 font-medium"
         >
             Login
         </button>

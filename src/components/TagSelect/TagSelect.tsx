@@ -16,7 +16,8 @@ type TagSelectPropsType = {
 const defaultOption: Option[] = [
     {value: 'option1', label: 'Option 1', active: false},
     {value: 'option2', label: 'Option 2', active: false},
-    {value: 'option3', label: 'Option 34', active: false},
+    {value: 'option3', label: 'Option 3', active: false},
+    {value: 'option4', label: 'Option 4', active: false},
 ];
 
 

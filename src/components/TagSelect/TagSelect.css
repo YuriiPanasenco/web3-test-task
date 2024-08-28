@@ -6,7 +6,7 @@
 }
 
 .react-select__value-container {
-    @apply p-0 m-0 gap-1;
+    @apply p-0 m-0 gap-1 flex-nowrap !important;
     /* Ensure padding and margin are removed for full rounded look */
 }
 
