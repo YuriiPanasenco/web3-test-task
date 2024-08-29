@@ -99,10 +99,10 @@ const DrinkListPage: React.FC<DrinksPagePropsType> = ({favouriteOnly = false}) =
                     {renderComponent ? renderComponent : <>
                         {drinksState.drinks.map((drink: Drink) =>
                             <DrinkCard key={drink.idDrink} drink={drink}
-                                       className="flex flex-col items-end border rounded-lg shadow-md w-full min-width-[90%] md:w-[45%] lg:w-[32%] p-4 bg-white"
-                                       onToggleFavourite={handleChangeFavourite}
-                                       onOpen={handleGetDrinkDetail}
-                                       isFavourite={favouritesState.drinks.findIndex((d: Drink) => d.idDrink == drink.idDrink) >= 0}
+                                className="flex flex-col items-end border rounded-lg shadow-md w-full min-width-[90%] md:w-[45%] lg:w-[32%] p-4 bg-white"
+                                onToggleFavourite={handleChangeFavourite}
+                                onOpen={handleGetDrinkDetail}
+                                isFavourite={favouritesState.drinks.findIndex((d: Drink) => d.idDrink == drink.idDrink) >= 0}
                             />
                         )}
                     </>}
@@ -110,10 +110,10 @@ const DrinkListPage: React.FC<DrinksPagePropsType> = ({favouriteOnly = false}) =
                     {!openDrinkDetail ? "" :
                         <Modal isOpen={openDrinkDetail} onClose={handleCloseDetailModal}>
                             <DrinkCard drink={openDrinkDetail}
-                                       className="flex flex-col items-end"
-                                       onToggleFavourite={handleChangeFavourite}
-                                       onOpen={handleGetDrinkDetail}
-                                       isFavourite={favouritesState.drinks.findIndex((d: Drink) => d.idDrink == openDrinkDetail.idDrink) >= 0}
+                                className="flex flex-col items-end"
+                                onToggleFavourite={handleChangeFavourite}
+                                onOpen={handleGetDrinkDetail}
+                                isFavourite={favouritesState.drinks.findIndex((d: Drink) => d.idDrink == openDrinkDetail.idDrink) >= 0}
                             />
                         </Modal>
                     }

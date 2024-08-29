@@ -2,9 +2,10 @@ import {Drink} from "../dto/Drinks";
 import {Category} from "../dto/Categories";
 import API from './API'
 
+const LOCAL_STORAGE_KEY = "favourites";
+
 export default class FavouritesAPI extends API {
     protected static _instance: FavouritesAPI;
-    private static LOCAL_STORAGE_KEY = "favourites";
 
     public static getInstance() {
         if (!FavouritesAPI._instance) {
@@ -60,7 +61,7 @@ export default class FavouritesAPI extends API {
 
     private read(): Drink[] {
         try {
-            const storedItem = localStorage.getItem(FavouritesAPI.LOCAL_STORAGE_KEY);
+            const storedItem = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (storedItem) {
                 return JSON.parse(storedItem);
             }
@@ -72,7 +73,7 @@ export default class FavouritesAPI extends API {
 
     private write(drinks: Drink[]): boolean {
         try {
-            localStorage.setItem(FavouritesAPI.LOCAL_STORAGE_KEY, JSON.stringify(drinks));
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(drinks));
             return true;
         } catch {
             return false;
