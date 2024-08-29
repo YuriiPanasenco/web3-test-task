@@ -1,8 +1,12 @@
-import {Drink} from "../../../model/Drinks";
+import {Drink} from "../../../dto/Drinks";
 
 export const FETCH_DRINKS_REQUEST = "FETCH_DRINKS_REQUEST";
 export const FETCH_DRINKS_SUCCESS = "FETCH_DRINKS_SUCCESS";
 export const FETCH_DRINKS_FAILURE = "FETCH_DRINKS_FAILURE";
+
+export const FETCH_RANDOM_DRINK_REQUEST = "FETCH_RANDOM_DRINK_REQUEST";
+export const FETCH_RANDOM_DRINK_SUCCESS = "FETCH_RANDOM_DRINK_SUCCESS";
+export const FETCH_RANDOM_DRINK_FAILURE = "FETCH_RANDOM_DRINK_FAILURE";
 
 interface FetchDrinksRequestAction {
     type: typeof FETCH_DRINKS_REQUEST;
@@ -18,7 +22,25 @@ interface FetchDrinksFailureAction {
     payload: string;
 }
 
+interface FetchRandomDrinkRequestAction {
+    type: typeof FETCH_RANDOM_DRINK_REQUEST;
+}
+
+interface FetchRandomDrinkSuccessAction {
+    type: typeof FETCH_RANDOM_DRINK_SUCCESS;
+    payload: Drink;
+}
+
+interface FetchRandomDrinkFailureAction {
+    type: typeof FETCH_RANDOM_DRINK_FAILURE;
+    payload: string;
+}
+
 export type DrinksActionTypes =
     | FetchDrinksRequestAction
     | FetchDrinksSuccessAction
-    | FetchDrinksFailureAction;
+    | FetchDrinksFailureAction
+    | FetchRandomDrinkRequestAction
+    | FetchRandomDrinkSuccessAction
+    | FetchRandomDrinkFailureAction
+    ;

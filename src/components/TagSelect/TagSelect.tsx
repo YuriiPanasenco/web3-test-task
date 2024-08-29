@@ -11,11 +11,12 @@ interface Option {
 type SelectPropsType = {
     isMulti: boolean
     options: Option[],
+    placeholder?: string
     onChange: (option: Option[]) => void
 }
 
 
-const Select: React.FC<SelectPropsType> = ({options, onChange, isMulti}) => {
+const Select: React.FC<SelectPropsType> = ({options, onChange, isMulti, placeholder}) => {
     const variants = options.slice(0, options.length - 1);
 
     if (!isMulti) {
@@ -41,7 +42,7 @@ const Select: React.FC<SelectPropsType> = ({options, onChange, isMulti}) => {
                 isMulti={isMulti}
                 options={variants}
                 onChange={handleChange}
-                placeholder="Select options..."
+                placeholder={placeholder || "Select options..."}
                 className="react-select-container"
                 classNamePrefix="react-select"
             />

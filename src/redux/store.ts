@@ -1,16 +1,18 @@
 import {configureStore, isPlain} from '@reduxjs/toolkit';
 import {thunk} from 'redux-thunk';
-import {Exception} from "../model/Exception";
+import {Exception} from "../dto/Exception";
 import authSlice from './slices/authSlice';
-import drinksSlice from "./slices/drink/drinksSlice";
+import drinkListSlice from "./slices/drink/drinkListSlice";
 import categoriesSlice from "./slices/category/categoriesSlice";
 import favouritesSlice from "./slices/favourites/favouritesSlice";
+import randomDrinkSlice from "./slices/drink/randomDrinkSlice";
 
 
 const store = configureStore({
     reducer: {
         auth: authSlice,
-        drinks: drinksSlice,
+        drinkList: drinkListSlice,
+        randomDrink: randomDrinkSlice,
         favourites: favouritesSlice,
         categories: categoriesSlice,
     },

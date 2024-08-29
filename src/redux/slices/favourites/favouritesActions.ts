@@ -7,9 +7,9 @@ import {
     FETCH_FAVOURITES_SUCCESS,
     REMOVE_FAVOURITES_REQUEST
 } from "./favouritesReduxTypes";
-import {Drink} from "../../../model/Drinks";
-import {Category} from "../../../model/Categories";
-import {Exception} from "../../../model/Exception";
+import {Drink} from "../../../dto/Drinks";
+import {Category} from "../../../dto/Categories";
+import {Exception} from "../../../dto/Exception";
 import FavouritesAPI from "../../../api/FavouritesAPI";
 
 

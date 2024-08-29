@@ -1,5 +1,5 @@
 import {DrinksActionTypes, FETCH_DRINKS_FAILURE, FETCH_DRINKS_REQUEST, FETCH_DRINKS_SUCCESS} from "./drinkReduxTypes";
-import {DrinksState} from "../../../model/Drinks";
+import {DrinksState} from "../../../dto/Drinks";
 
 
 const initialState: DrinksState = {
@@ -8,10 +8,7 @@ const initialState: DrinksState = {
     error: null,
 };
 
-const drinksSlice = (
-    state = initialState,
-    action: DrinksActionTypes
-): DrinksState => {
+const drinkListSlice = (state = initialState, action: DrinksActionTypes): DrinksState => {
     switch (action.type) {
     case FETCH_DRINKS_REQUEST:
         return {...state, loading: true, error: null};
@@ -24,4 +21,4 @@ const drinksSlice = (
     }
 };
 
-export default drinksSlice;
+export default drinkListSlice;

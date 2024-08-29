@@ -1,4 +1,4 @@
-import {Drink} from "../../../model/Drinks";
+import {Drink} from "../../../dto/Drinks";
 
 export const FETCH_FAVOURITES_REQUEST = "FETCH_FAVOURITES_REQUEST";
 export const FETCH_FAVOURITES_SUCCESS = "FETCH_FAVOURITES_SUCCESS";

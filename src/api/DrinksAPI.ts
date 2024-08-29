@@ -1,7 +1,7 @@
 import InvalidAPIRequestException from "./InvalidAPIRequestException";
 import axios from "axios";
-import {Drink} from "../model/Drinks";
-import {Category} from "../model/Categories";
+import {Drink} from "../dto/Drinks";
+import {Category} from "../dto/Categories";
 import API from './API'
 
 export default class DrinksAPI extends API {
@@ -33,6 +33,11 @@ export default class DrinksAPI extends API {
         }
 
         const response = await axios.get(`https://www.thecocktaildb.com/api/json/v1/1/${params.join('&')}`);
+        return response.data.drinks;
+    }
+
+    async fetchRandomDrink(): Promise<Drink> {
+        const response = await axios.get(`https://www.thecocktaildb.com/api/json/v1/1/random.php`);
         return response.data.drinks;
     }
 }

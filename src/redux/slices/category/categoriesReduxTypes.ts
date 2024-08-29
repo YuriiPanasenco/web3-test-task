@@ -1,4 +1,4 @@
-import {Category} from "../../../model/Categories";
+import {Category} from "../../../dto/Categories";
 
 export const FETCH_CATEGORIES_REQUEST = "FETCH_CATEGORIES_REQUEST";
 export const FETCH_CATEGORIES_SUCCESS = "FETCH_CATEGORIES_SUCCESS";

@@ -1,5 +1,5 @@
-import {Drink} from "../model/Drinks";
-import {Category} from "../model/Categories";
+import {Drink} from "../dto/Drinks";
+import {Category} from "../dto/Categories";
 import API from './API'
 
 export default class FavouritesAPI extends API {

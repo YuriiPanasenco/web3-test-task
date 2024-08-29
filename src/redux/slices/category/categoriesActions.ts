@@ -1,7 +1,7 @@
 import axios from "axios";
 import {Dispatch} from "redux";
 import {CategoriesActionTypes, FETCH_CATEGORIES_FAILURE, FETCH_CATEGORIES_REQUEST, FETCH_CATEGORIES_SUCCESS} from "./categoriesReduxTypes";
-import {Category} from "../../../model/Categories";
+import {Category} from "../../../dto/Categories";
 
 export const fetchCategories = () => {
     return async (dispatch: Dispatch<CategoriesActionTypes>) => {

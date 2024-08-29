@@ -1,5 +1,5 @@
 import {CategoriesActionTypes, FETCH_CATEGORIES_FAILURE, FETCH_CATEGORIES_REQUEST, FETCH_CATEGORIES_SUCCESS} from "./categoriesReduxTypes";
-import {CategoriesState} from "../../../model/Categories";
+import {CategoriesState} from "../../../dto/Categories";
 
 
 const initialState: CategoriesState = {

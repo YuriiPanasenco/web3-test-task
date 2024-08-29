@@ -8,7 +8,13 @@ export interface Drink {
 }
 
 export interface DrinksState {
-    drinks: Drink[];
+    drinks: Array<Drink>;
+    loading: boolean;
+    error: string | null;
+}
+
+export interface RandomDrinkState {
+    drink: Drink;
     loading: boolean;
     error: string | null;
 }

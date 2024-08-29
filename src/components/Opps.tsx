@@ -1,5 +1,5 @@
 import React from "react";
-import {Exception} from "../model/Exception";
+import {Exception} from "../dto/Exception";
 
 type OppsConponentType = {
     error: Exception

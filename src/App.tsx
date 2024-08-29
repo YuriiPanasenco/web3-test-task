@@ -1,16 +1,16 @@
 import './App.css'
-import DrinksPage from "./pages/DrinksPage";
+import DrinkListPage from "./pages/DrinkListPage";
 import {RouterProvider} from "react-router-dom";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <DrinksPage/>,
+        element: <DrinkListPage/>,
     },
     {
         path: "/favourites",
-        element: <DrinksPage favouriteOnly={true}/>
+        element: <DrinkListPage favouriteOnly={true}/>
     }
 ]);
 

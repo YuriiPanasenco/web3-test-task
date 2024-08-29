@@ -6,7 +6,7 @@ import {
     FETCH_FAVOURITES_SUCCESS,
     REMOVE_FAVOURITES_REQUEST
 } from "./favouritesReduxTypes";
-import {DrinksState} from "../../../model/Drinks";
+import {DrinksState} from "../../../dto/Drinks";
 import {getUniqueValues} from "../../../tools";
 
 
@@ -28,9 +28,9 @@ const favouritesSlice = (
     case FETCH_FAVOURITES_FAILURE:
         return {...state, loading: false, error: action.payload};
     case ADD_FAVOURITES_REQUEST:
-        return {...state, drinks: getUniqueValues([...state.drinks, action.payload])};
+        return {...state, drinks: getUniqueValues([action.payload, ...state.drinks])};
     case REMOVE_FAVOURITES_REQUEST:
-        return {...state, drinks: [...state.drinks.filter(d => d !== action.payload)]};
+        return {...state, drinks: [...state.drinks.filter(d => d.idDrink !== action.payload.idDrink)]};
     default:
         return state;
     }
