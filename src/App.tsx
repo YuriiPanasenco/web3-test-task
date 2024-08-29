@@ -1,23 +1,17 @@
 import './App.css'
-import HomePage from "./pages/HomePage";
+import DrinksPage from "./pages/DrinksPage";
 import {RouterProvider} from "react-router-dom";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
-
-import HomePage, {HomePageLoader} from "./pages/HomePage";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <HomePage/>,
-        loader: HomePageLoader,
-        children: [
-            {
-                // path: "team",
-                // element: <Team />,
-                // loader: teamLoader,
-            },
-        ],
+        element: <DrinksPage/>,
     },
+    {
+        path: "/favourites",
+        element: <DrinksPage favouriteOnly={true}/>
+    }
 ]);
 
 function App() {

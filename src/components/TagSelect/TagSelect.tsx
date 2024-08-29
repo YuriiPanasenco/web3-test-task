@@ -19,7 +19,7 @@ const Select: React.FC<SelectPropsType> = ({options, onChange, isMulti}) => {
     const variants = options.slice(0, options.length - 1);
 
     if (!isMulti) {
-        variants.unshift({value: null, label: "none", active: true});
+        variants.unshift({value: null, label: "All", active: true});
     }
 
     const handleChange = useCallback((c) => {

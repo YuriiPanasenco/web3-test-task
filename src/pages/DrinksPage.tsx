@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import PageTemplate from "./PageTemplate";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../redux/store";
@@ -12,32 +12,56 @@ import TagSelect from "../components/TagSelect/TagSelect";
 import {CategoriesState} from "../model/Categories";
 import {fetchCategories} from "../redux/slices/category/categoriesActions";
 import Opps from "../components/Opps";
+import {addFavourite, fetchFavourites, removeFavourite} from "../redux/slices/favourites/favouritesActions";
 
-// type FilterType = {
-//     search: string
-// }
+type DrinksPagePropsType = {
+    favouriteOnly: boolean
+}
 
-const HomePage: React.FC = () => {
+const DrinksPage: React.FC<DrinksPagePropsType> = ({favouriteOnly = false}) => {
     const dispatch: AppDispatch = useDispatch();
-    const drinksState: DrinksState = useSelector((state: RootState) => state.drinks);
+    let drinksState: DrinksState = useSelector((state: RootState) => state.drinks);
     const categoriesState: CategoriesState = useSelector((state: RootState) => state.categories);
+    const favouritesState: DrinksState = useSelector((state: RootState) => state.favourites);
 
     const [search, changeSearch] = useState("");
     const [category, changeCategory] = useState(null);
 
+    if (favouriteOnly) {
+        drinksState = favouritesState;
+    }
+
     useEffect(() => {
-        dispatch(fetchDrinks(search, category?.value));
-    }, [dispatch, search, category]);
+        dispatch(fetchFavourites(search, category?.value));
+        if (!favouriteOnly) {
+            dispatch(fetchDrinks(search, category?.value));
+        }
+    }, [dispatch, search, category, favouriteOnly]);
+
     useEffect(() => {
         dispatch(fetchCategories());
     }, [dispatch]);
+
+    const handleChangeFavourite = useCallback((drink: Drink, favourite: boolean) => {
+        if (favourite) {
+            dispatch(addFavourite(drink));
+        } else {
+            dispatch(removeFavourite(drink));
+        }
+    }, [dispatch]);
+
 
     let renderComponent = <NoSearchResults/>;
 
     if (drinksState.loading) {
         renderComponent = <LoadingSpinner/>;
-    } else if (drinksState.drinks && drinksState.drinks.length) {
-        renderComponent = <>{drinksState.drinks.map((drink: Drink) => (<DrinkCard key={drink.idDrink} drink={drink}/>))}</>;
+    } else if (drinksState.drinks?.length) {
+        renderComponent = <>{drinksState.drinks.map((drink: Drink) =>
+            <DrinkCard key={drink.idDrink} drink={drink}
+                onToggleFavourite={handleChangeFavourite}
+                isFavourite={favouritesState.drinks.findIndex((d: Drink) => d.idDrink == drink.idDrink) >= 0}
+            />
+        )}</>;
     }
 
     if (drinksState.error || categoriesState.error) {
@@ -66,10 +90,5 @@ const HomePage: React.FC = () => {
     );
 };
 
-const HomePageLoader: React.FC = () => {
-    return (<div>Loading</div>);
-}
-
-export default HomePage;
-export {HomePageLoader};
+export default DrinksPage;
 

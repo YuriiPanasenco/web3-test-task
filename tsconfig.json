@@ -1,5 +1,7 @@
 {
-  "files": [],
+  "files": [
+    "node_modules/dom-accessibility-api/dist/polyfills/SetLike.d.ts"
+  ],
   "references": [
     {
       "path": "./config/tsconfig.app.json"

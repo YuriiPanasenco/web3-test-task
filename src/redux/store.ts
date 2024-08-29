@@ -1,15 +1,17 @@
 import {configureStore, isPlain} from '@reduxjs/toolkit';
 import {thunk} from 'redux-thunk';
+import {Exception} from "../model/Exception";
 import authSlice from './slices/authSlice';
 import drinksSlice from "./slices/drink/drinksSlice";
 import categoriesSlice from "./slices/category/categoriesSlice";
-import {Exception} from "../model/Exception";
+import favouritesSlice from "./slices/favourites/favouritesSlice";
 
 
 const store = configureStore({
     reducer: {
         auth: authSlice,
         drinks: drinksSlice,
+        favourites: favouritesSlice,
         categories: categoriesSlice,
     },
     middleware: getDefaultMiddleware =>

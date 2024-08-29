@@ -27,7 +27,7 @@ const Header: React.FC = () => {
                     <div className=" md:flex md:items-center md:space-x-8">
                         <Link to="/" className="text-gray-900 hover:text-indigo-600 font-medium">Home </Link>
                         {isAuthenticated && (
-                            <Link to="/dashboard" className="text-gray-900 hover:text-indigo-600 font-medium">Favourites</Link>
+                            <Link to="/favourites" className="text-gray-900 hover:text-indigo-600 font-medium">Favourites</Link>
                         )}
 
                         {isAuthenticated ? (

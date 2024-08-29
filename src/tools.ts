@@ -1,6 +1,4 @@
-export function cropText(text: string, maxLength: number): string {
-    if (text.length > maxLength) {
-        return text.substring(0, maxLength) + '...';
-    }
-    return text;
+export function getUniqueValues<T>(array: T[]): T[] {
+    return Array.from(new Set(array));
 }
+

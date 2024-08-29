@@ -1,15 +1,23 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {Drink} from "../model/Drinks";
-import {StarIcon} from '@heroicons/react/24/outline'
+import StarIcon from "./ui-kit/StarIcon";
+
 
 type DrinkCardProps = {
     drink: Drink;
+    isFavourite: boolean,
+    onToggleFavourite: (drink: Drink, favourite: boolean) => void
 };
 
-const DrinkCard: React.FC<DrinkCardProps> = ({drink}) => {
+const DrinkCard: React.FC<DrinkCardProps> = ({drink, isFavourite, onToggleFavourite}) => {
+
+    const handleStarClick = useCallback(() => {
+        onToggleFavourite(drink, !isFavourite);
+    }, [drink, isFavourite, onToggleFavourite]);
+
     return (
         <div className="flex flex-col items-end border rounded-lg shadow-md w-full min-width-[90%] md:w-[45%] lg:w-[32%] p-4 bg-white">
-            <StarIcon className="text-green-500" style={{width: '1.2rem', height: '1.2rem'}}/>
+            <StarIcon isActive={isFavourite} onClick={handleStarClick}/>
             <div className="flex w-full flex-row gap-8">
                 <div className="flex justify-center items-center mb-4">
                     <div className="w-24 h-40 bg-gray-200 flex items-center justify-center rounded">

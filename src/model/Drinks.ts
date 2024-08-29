@@ -3,6 +3,7 @@ export interface Drink {
     strDrink: string;
     strInstructions: string;
     strDrinkThumb: string;
+    strCategory: string;
     // Add other fields as needed
 }
 
