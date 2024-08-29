@@ -1,6 +1,6 @@
-import React from 'react';
-import Select from 'react-select';
-import './TagSelect.css'; // Import the custom CSS styles
+import React, {useCallback} from 'react';
+import ReactSelect from 'react-select';
+import './TagSelect.css';
 
 interface Option {
     value: string;
@@ -8,27 +8,39 @@ interface Option {
     active: boolean;
 }
 
-type TagSelectPropsType = {
+type SelectPropsType = {
+    isMulti: boolean
     options: Option[],
     onChange: (option: Option[]) => void
 }
 
-const defaultOption: Option[] = [
-    {value: 'option1', label: 'Option 1', active: false},
-    {value: 'option2', label: 'Option 2', active: false},
-    {value: 'option3', label: 'Option 3', active: false},
-    {value: 'option4', label: 'Option 4', active: false},
-];
 
+const Select: React.FC<SelectPropsType> = ({options, onChange, isMulti}) => {
+    const variants = options.slice(0, options.length - 1);
 
-const TagSelect: React.FC<TagSelectPropsType> = ({options = defaultOption, onChange}) => {
+    if (!isMulti) {
+        variants.unshift({value: null, label: "none", active: true});
+    }
+
+    const handleChange = useCallback((c) => {
+        if (!isMulti) {
+            const selectIndex = options.findIndex(o => o === c);
+            if (selectIndex === -1) {
+                onChange([]);
+            } else {
+                onChange([options[selectIndex]]);
+            }
+        } else {
+            onChange(c);
+        }
+    }, [onChange, options, isMulti]);
 
     return (
         <div className="w-full max-w-sm">
-            <Select
-                isMulti
-                options={options}
-                onChange={onChange}
+            <ReactSelect
+                isMulti={isMulti}
+                options={variants}
+                onChange={handleChange}
                 placeholder="Select options..."
                 className="react-select-container"
                 classNamePrefix="react-select"
@@ -37,4 +49,4 @@ const TagSelect: React.FC<TagSelectPropsType> = ({options = defaultOption, onCha
     );
 };
 
-export default TagSelect;
+export default Select;

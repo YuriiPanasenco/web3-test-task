@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 
 type SearchInputProps = {
     queryString: string;
@@ -10,9 +10,10 @@ const SearchInput: React.FC<SearchInputProps> = ({queryString = "", searchHandle
     const [isTyping, setIsTyping] = useState(false);
     const [timer, setTimer] = useState(null);
 
-    const handleSearch = () => {
+    const handleSearch = useCallback(() => {
         searchHandler(query);
-    };
+    }, [query, searchHandler]);
+
 
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
@@ -41,7 +42,7 @@ const SearchInput: React.FC<SearchInputProps> = ({queryString = "", searchHandle
 
     return (
         <>
-            <div className="relative w-[90%] md:w-1/2">
+            <div className="w-full max-w-sm">
                 <input
                     name="search"
                     type="text"
@@ -51,12 +52,6 @@ const SearchInput: React.FC<SearchInputProps> = ({queryString = "", searchHandle
                     onChange={handleInputChange}
                     onKeyDown={handleKeyPress}
                 />
-                <button
-                    className="absolute top-1 right-1 h-[34px] bg-blue-500 text-white px-4 py-1 rounded-full"
-                    onClick={handleSearch}
-                >
-                    Search
-                </button>
             </div>
         </>
     );

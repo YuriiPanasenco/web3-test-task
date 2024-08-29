@@ -1,7 +1,8 @@
 import React from "react";
+import {Exception} from "../model/Exception";
 
 type OppsConponentType = {
-    error: string
+    error: Exception
 }
 
 const OopsSVG = () => {
@@ -39,7 +40,7 @@ const Opps: React.FC<OppsConponentType> = ({error}) => {
             <h2 className="text-2xl font-semibold mb-4 text-gray-800">Something went wrong</h2>
             <p className="text-gray-500 mb-6">Try later please.</p>
             <OopsSVG/>
-            {error ? <p className="text-black"><b>Error: </b>{error}</p> : ""}
+            {error ? <p className="text-black"><b>Error: </b>{error.message}</p> : ""}
         </div>
     );
 };

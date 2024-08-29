@@ -10,7 +10,7 @@
     /* Ensure padding and margin are removed for full rounded look */
 }
 
-.react-select__input-container {
+.react-select__input-container, .react-select__single-value {
     @apply text-white !important;
     /* Input text color */
 }
@@ -42,7 +42,7 @@
 }
 
 .react-select__option {
-    @apply text-white bg-gray-900 hover:bg-gray-800 cursor-pointer !important;
+    @apply text-white min-h-[30px] bg-gray-900 hover:bg-gray-800 cursor-pointer !important;
     /* Dark options with hover effect */
 }
 
