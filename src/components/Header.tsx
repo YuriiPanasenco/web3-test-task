@@ -1,10 +1,9 @@
 import React, {useEffect} from 'react';
 import {Link} from 'react-router-dom';
 import {useDispatch} from 'react-redux';
-import {logout, loading} from '../redux/slices/auth/authSlice';
+import {logout, loading, login} from '../redux/slices/auth/authSlice';
 import {useAccount, useConnect, useDisconnect} from "wagmi";
 import {useAppSelector} from "../hooks/useAuth";
-import {connectAction} from "../redux/slices/auth/authActions";
 
 
 const Header: React.FC = () => {
@@ -22,12 +21,15 @@ const Header: React.FC = () => {
 
     const handleLogin = async (connector) => {
         await connectAsync({connector});
-        dispatch(connectAction());
+        dispatch(login());
     };
 
     useEffect(() => {
         if (storeAuthStatus == 'disconnected' && account.status === 'connected') {
-            dispatch(connectAction(account));
+            dispatch(login());
+        }
+        if (storeAuthStatus == 'connected' && account.status === 'disconnected') {
+            dispatch(logout());
         }
     }, [dispatch, storeAuthStatus, account]);
 
@@ -50,9 +52,12 @@ const Header: React.FC = () => {
 
 
                     <div className="flex md:space-x-8 items-stretch">
-                        <Link to="/" className="content-center text-gray-900 hover:text-indigo-600 font-medium">Home </Link>
+                        <Link to="/" className="content-center text-gray-900 hover:text-indigo-600 font-medium">Http </Link>
                         {account.status === 'connected' && (
-                            <Link to="/favourites" className="text-gray-900 hover:text-indigo-600 font-medium content-center">Favourites</Link>
+                            <>
+                                <Link to="/web3" className="text-gray-900 hover:text-indigo-600 font-medium content-center">Web3</Link>
+                                <Link to="/favourites" className="text-gray-900 hover:text-indigo-600 font-medium content-center">Favourites</Link>
+                            </>
                         )}
                         <div className="text-gray-900 flex items-center gap-2 border-l border-gray-500 border-dashed pl-8">
                             {account.status === 'connected' ? (

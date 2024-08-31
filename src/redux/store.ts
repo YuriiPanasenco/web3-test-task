@@ -5,7 +5,6 @@ import authSlice from './slices/auth/authSlice';
 import drinkListSlice from "./slices/drink/drinkListSlice";
 import categoriesSlice from "./slices/category/categoriesSlice";
 import randomDrinkSlice from "./slices/drink/randomDrinkSlice";
-import blockchainSlice from "./slices/blockchain/blockchainSlice";
 
 
 const store = configureStore({
@@ -14,7 +13,6 @@ const store = configureStore({
         drinkList: drinkListSlice,
         randomDrink: randomDrinkSlice,
         categories: categoriesSlice,
-        blockchain: blockchainSlice,
     },
     middleware: getDefaultMiddleware =>
         getDefaultMiddleware({

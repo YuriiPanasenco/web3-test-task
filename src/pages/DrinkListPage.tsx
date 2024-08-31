@@ -14,12 +14,12 @@ import {fetchCategories} from "../redux/slices/category/categoriesActions";
 import Opps from "../components/Opps";
 import Modal from "../components/ui-kit/Modal";
 import Button from "../components/ui-kit/Button";
-import API, {AnyAPIInstanceType} from "../api/API";
+import API from "../api/API";
 import {Exception} from "../dto/Exception";
 import {deepCopy} from "../tools";
 
 type DrinksPagePropsType<T extends API> = {
-    api: AnyAPIInstanceType<T>
+    api: T
     favouriteOnly: boolean
 }
 
@@ -30,7 +30,7 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
 
     const [search, changeSearch] = useState("");
     const [category, changeCategory] = useState(null);
-    const [openDrinkDetail, changeOpenDrinkDetail]: [Drink | Exception, () => void] = useState(null);
+    const [openDrinkDetail, changeOpenDrinkDetail]: [Drink | Exception | "loading", () => void] = useState(null);
 
 
     useEffect(() => {
@@ -38,8 +38,8 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
     }, [dispatch, search, category, api]);
 
     useEffect(() => {
-        dispatch(fetchCategories());
-    }, [dispatch]);
+        dispatch(fetchCategories(api));
+    }, [dispatch, api]);
 
     const handleChangeFavourite = useCallback((drink: Drink, favourite: boolean) => {
         if (favourite) {
@@ -57,6 +57,7 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
     };
 
     const handleFetchRandom = useCallback(() => {
+        changeOpenDrinkDetail("loading");
         dispatch(fetchRandomDrink(api)).then((drink: Drink) => {
             changeOpenDrinkDetail(drink);
         }).catch(e => {
@@ -107,19 +108,23 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
 
                     {openDrinkDetail &&
                     <Modal isOpen={openDrinkDetail} onClose={handleCloseDetailModal}>
-                        {(openDrinkDetail instanceof Exception) ?
-                            <Opps error={openDrinkDetail}/>
-                            : <DrinkCard drink={openDrinkDetail}
-                                className="flex flex-col items-end"
-                                onToggleFavourite={() => {
-                                    const copy = deepCopy(openDrinkDetail);
-                                    copy.isFavourite = !copy.isFavourite;
-                                    handleChangeFavourite(openDrinkDetail, copy.isFavourite);
-                                    changeOpenDrinkDetail(copy);
-                                }}
-                                onOpen={handleGetDrinkDetail}
-                                isFavourite={openDrinkDetail.isFavourite}
-                            />
+                        {typeof openDrinkDetail == 'string' ? <LoadingSpinner/> :
+                            (openDrinkDetail instanceof Exception) ? <Opps error={openDrinkDetail}/>
+                                : <div className="flex flex-col text-black text-left">
+                                    <DrinkCard drink={openDrinkDetail}
+                                        className="flex flex-col items-end"
+                                        onToggleFavourite={() => {
+                                            const copy = deepCopy(openDrinkDetail);
+                                            copy.isFavourite = !copy.isFavourite;
+                                            handleChangeFavourite(openDrinkDetail, copy.isFavourite);
+                                            changeOpenDrinkDetail(copy);
+                                        }}
+                                        onOpen={handleGetDrinkDetail}
+                                        isFavourite={openDrinkDetail.isFavourite}
+                                    />
+                                    <p><b>HashID: </b>{openDrinkDetail.idDrink}</p>
+                                    <p><b>Category: </b>{openDrinkDetail.strCategory}</p>
+                                </div>
                         }
                     </Modal>
                     }

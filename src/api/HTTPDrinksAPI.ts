@@ -25,20 +25,19 @@ export default class HTTPDrinksAPI extends API {
         }
 
         const response = await axios.get(`https://www.thecocktaildb.com/api/json/v1/1/${params.join('&')}`);
+        this.generateIds(response?.data?.drinks);
         return this.addFavouriteParam(response.data.drinks);
     }
 
     async fetchRandomDrink(): Promise<Drink[]> {
         const response = await axios.get(`https://www.thecocktaildb.com/api/json/v1/1/random.php`);
+        this.generateIds(response?.data?.drinks);
         return this.addFavouriteParam(response.data.drinks);
     }
 
-    private addFavouriteParam(drinks: Drink[]): Drink[] {
-        const fawDrinks: Array<Drink> = this.readFavourite();
-        drinks.forEach(drink => {
-            const fawIndex = fawDrinks.findIndex(fawDrink => fawDrink.idDrink == drink.idDrink);
-            drink.isFavourite = fawIndex >= 0;
-        });
-        return drinks;
+    async fetchCategories(): Promise<Category[]> {
+        const response = await axios.get(`https://www.thecocktaildb.com/api/json/v1/1/list.php?c=list`);
+        this.generateIds(response?.data?.drinks);
+        return response.data.drinks;
     }
 }

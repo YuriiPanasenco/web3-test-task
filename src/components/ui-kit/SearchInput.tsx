@@ -1,4 +1,6 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
+import useDebounce from "../../hooks/useDebounce";
+
 
 type SearchInputProps = {
     queryString: string;
@@ -7,37 +9,23 @@ type SearchInputProps = {
 
 const SearchInput: React.FC<SearchInputProps> = ({queryString = "", searchHandler}) => {
     const [query, setQuery] = useState(queryString);
-    const [isTyping, setIsTyping] = useState(false);
-    const [timer, setTimer] = useState(null);
 
-    const handleSearch = useCallback(() => {
-        searchHandler(query);
-    }, [query, searchHandler]);
+    const [debouncedQuery, enter] = useDebounce(query, 1500); // Затримка 1.5 секунди
+
+    useEffect(() => {
+        searchHandler(debouncedQuery);
+    }, [debouncedQuery, searchHandler]);
 
 
     const handleKeyPress = (event) => {
+        setQuery(event.target.value);
         if (event.key === 'Enter') {
-            clearTimeout(timer);
-            handleSearch();
-            setIsTyping(false);
+            enter();
         }
     };
 
-    // Reset typing state and trigger search after 3 seconds
-    useEffect(() => {
-        if (isTyping) {
-            const timer = setTimeout(() => {
-                handleSearch();
-                setIsTyping(false);
-            }, 1500);
-            setTimer(timer);
-            return () => clearTimeout(timer);
-        }
-    }, [query, isTyping, handleSearch]);
-
     const handleInputChange = (event) => {
         setQuery(event.target.value);
-        setIsTyping(true);
     };
 
     return (

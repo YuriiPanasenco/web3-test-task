@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import {Drink} from "../dto/Drinks";
 import StarIcon from "./ui-kit/StarIcon";
 import ClickSoundWrapper from "./ui-kit/ClickSoundWrapper";
+import StarRating from "./ui-kit/StarRating";
 
 
 type DrinkCardProps = {
@@ -32,10 +33,14 @@ const DrinkCard: React.FC<DrinkCardProps> = ({drink, isFavourite, onToggleFavour
                         </div>
                     </ClickSoundWrapper>
                 </div>
-                <div>
-                    <h2 className="text-left text-xl font-bold text-gray-900 mb-2">{drink.strDrink}</h2>
-                    <p className="text-left text-gray-700 line-clamp-5">{drink.strInstructions}</p>
+                <div className="flex flex-col justify-between">
+                    <div>
+                        <h2 className="text-left text-xl font-bold text-gray-900 mb-2">{drink.strDrink}</h2>
+                        <p className="text-left text-gray-700 line-clamp-5">{drink.strInstructions}</p>
+                    </div>
+                    {"averageRating" in drink && <StarRating rating={drink.averageRating}/>}
                 </div>
+
             </div>
         </div>
     );

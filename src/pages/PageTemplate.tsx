@@ -11,7 +11,7 @@ type PageTemplateType = {
 }
 
 const PageTemplate: React.FC<PageTemplateType> = ({children, error = false, loading = false}) => {
-    const isAuthenticated = useAppSelector(state => state.auth.status == 'idle');
+    const isAuthenticated = useAppSelector(state => state.auth.status == 'connected');
 
     let renderComponent: JSX.Element = children;
 

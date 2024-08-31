@@ -12,16 +12,22 @@ import {FavouritesActionTypes, ADD_FAVOURITES_REQUEST, REMOVE_FAVOURITES_REQUEST
 import {Category} from "../../../dto/Categories";
 import InvalidAPIRequestException from "../../../api/InvalidAPIRequestException";
 import {Exception} from "../../../dto/Exception";
-import API, {AnyAPIInstanceType} from "../../../api/API";
+import API from "../../../api/API";
 import {Drink} from "../../../dto/Drinks";
+import {hashObject} from "../../../tools";
 
 
-export function fetchAllDrinks<T extends API>(api: AnyAPIInstanceType<T>, search: string, category: Category | null) {
+export function fetchAllDrinks<T extends API>(api: T, search: string, category: Category | null) {
     return async (dispatch: Dispatch<DrinksActionTypes>) => {
         dispatch({type: FETCH_DRINKS_REQUEST});
 
         try {
-            const drinks = await api.getInstance().searchDrinks(search, category);
+            const drinks = await api.searchDrinks(search, category);
+            if (drinks) {
+                drinks.forEach(d => {
+                    d.idDrink = hashObject(d, ['strDrink', 'strDrinkThumb', 'strCategory'])
+                });
+            }
             dispatch({type: FETCH_DRINKS_SUCCESS, payload: drinks});
         } catch (error) {
             let payload = error;
@@ -33,11 +39,12 @@ export function fetchAllDrinks<T extends API>(api: AnyAPIInstanceType<T>, search
     };
 }
 
-export function fetchRandomDrink<T extends API>(api: AnyAPIInstanceType<T>) {
+export function fetchRandomDrink<T extends API>(api: T) {
     return async (dispatch: Dispatch<DrinksActionTypes>) => {
         dispatch({type: FETCH_RANDOM_DRINK_REQUEST});
         try {
-            const drinks = await api.getInstance().fetchRandomDrink();
+            const drinks: Array<Drink> = await api.fetchRandomDrink();
+
             dispatch({type: FETCH_RANDOM_DRINK_SUCCESS, payload: drinks[0]});
             return drinks[0];
         } catch (error) {
@@ -47,16 +54,16 @@ export function fetchRandomDrink<T extends API>(api: AnyAPIInstanceType<T>) {
     };
 }
 
-export function addFavourite<T extends API>(api: AnyAPIInstanceType<T>, drink: Drink) {
+export function addFavourite<T extends API>(api: T, drink: Drink) {
     return async (dispatch: Dispatch<FavouritesActionTypes>) => {
-        await api.getInstance().addFavourite(drink);
+        await api.addFavourite(drink);
         dispatch({type: ADD_FAVOURITES_REQUEST, payload: drink});
     };
 }
 
-export function removeFavourite<T extends API>(api: AnyAPIInstanceType<T>, drink: Drink) {
+export function removeFavourite<T extends API>(api: T, drink: Drink) {
     return async (dispatch: Dispatch<FavouritesActionTypes>) => {
-        await api.getInstance().removeFavourite(drink);
+        await api.removeFavourite(drink);
         dispatch({type: REMOVE_FAVOURITES_REQUEST, payload: drink});
     };
 }

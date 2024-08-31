@@ -34,4 +34,8 @@ export default class FavouritesAPI extends API {
         return Promise.resolve([drinks[randomIndex]]);
     }
 
+    fetchCategories(): Promise<Category[]> {
+        const drinks = this.readFavourite();
+        return Promise.resolve(this.selectUniqCategories(drinks));
+    }
 }

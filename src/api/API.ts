@@ -1,18 +1,16 @@
 import {Category} from "../dto/Categories";
 import {Drink} from "../dto/Drinks";
-import {deepCopy} from "../tools";
+import {deepCopy, hashObject} from "../tools";
 
 const LOCAL_STORAGE_KEY = "favourites";
 
 export default abstract class API {
-    public static getInstance(): API {
-        throw new Error("The getInstance method doesn't have implementation in the API class")
-    }
-
 
     public abstract async searchDrinks(search: string, category: Category): Promise<Drink[]>
 
     public abstract async fetchRandomDrink(): Promise<Drink[]>
+
+    public abstract async fetchCategories(): Promise<Category[]>
 
     public removeFavourite(drink: Drink): Promise<boolean> {
         return new Promise((resolve, reject) => {
@@ -40,6 +38,13 @@ export default abstract class API {
     }
 
 
+    protected generateIds(drinks: Drink[] = []) {
+        if (!drinks) return;
+        drinks.forEach(d => {
+            d.idDrink = hashObject(d, ['strDrink', 'strDrinkThumb', 'strCategory'])
+        });
+    }
+
     protected readFavourite(): Drink[] {
         try {
             const storedItem = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -60,18 +65,27 @@ export default abstract class API {
             return false;
         }
     }
-}
 
-export type AnyAPIInstanceType<T extends API> = {
-    new(...args: []): T;  // Constructor signature
-    // getInstance(): T;         // Static method signature
-};
+    protected addFavouriteParam(drinks: Drink[]): Drink[] {
+        if (!drinks) return drinks;
+        const fawDrinks: Array<Drink> = this.readFavourite();
+        drinks.forEach(drink => {
+            const fawIndex = fawDrinks.findIndex(fawDrink => fawDrink.idDrink == drink.idDrink);
+            drink.isFavourite = fawIndex >= 0;
+        });
+        return drinks;
+    }
 
-export function apiFactory<T extends API>(api: AnyAPIInstanceType<T>) {
-    const instance = new api();
-    return {
-        getInstance(): API {
-            return instance;
-        }
+    protected selectUniqCategories(drinks: Drink[]): Category[] {
+        if (!drinks || drinks.length == 0) return [];
+        const categoryNames = drinks.reduce((acc: string[], current: Drink) => {
+            if (!acc.includes(current.strCategory)) {
+                acc.push(current.strCategory);
+            }
+            return acc;
+        }, []);
+
+        return categoryNames.map(c => ({strCategory: c}));
     }
 }
+
