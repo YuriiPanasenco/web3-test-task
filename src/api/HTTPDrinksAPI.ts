@@ -4,15 +4,7 @@ import {Drink} from "../dto/Drinks";
 import {Category} from "../dto/Categories";
 import API from './API'
 
-export default class DrinksAPI extends API {
-    protected static _instance: DrinksAPI;
-
-    public static getInstance() {
-        if (!DrinksAPI._instance) {
-            DrinksAPI._instance = new DrinksAPI();
-        }
-        return DrinksAPI._instance;
-    }
+export default class HTTPDrinksAPI extends API {
 
     /**
      * @param {string} search
@@ -33,11 +25,20 @@ export default class DrinksAPI extends API {
         }
 
         const response = await axios.get(`https://www.thecocktaildb.com/api/json/v1/1/${params.join('&')}`);
-        return response.data.drinks;
+        return this.addFavouriteParam(response.data.drinks);
     }
 
-    async fetchRandomDrink(): Promise<Drink> {
+    async fetchRandomDrink(): Promise<Drink[]> {
         const response = await axios.get(`https://www.thecocktaildb.com/api/json/v1/1/random.php`);
-        return response.data.drinks;
+        return this.addFavouriteParam(response.data.drinks);
+    }
+
+    private addFavouriteParam(drinks: Drink[]): Drink[] {
+        const fawDrinks: Array<Drink> = this.readFavourite();
+        drinks.forEach(drink => {
+            const fawIndex = fawDrinks.findIndex(fawDrink => fawDrink.idDrink == drink.idDrink);
+            drink.isFavourite = fawIndex >= 0;
+        });
+        return drinks;
     }
 }

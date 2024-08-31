@@ -1,3 +1,7 @@
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
+import {WagmiProvider} from 'wagmi'
+import {config} from './wagmi.config'
+
 import {createRoot} from 'react-dom/client'
 import './index.css'
 
@@ -6,13 +10,14 @@ import App from './App.tsx'
 
 import store from './redux/store';
 
-const root = createRoot(
-    document.getElementById('root') as HTMLElement
-);
+const queryClient = new QueryClient()
 
-
-root.render(
+createRoot(document.getElementById('root') as HTMLElement).render(
     <Provider store={store}>
-        <App/>
+        <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+                <App/>
+            </QueryClientProvider>
+        </WagmiProvider>
     </Provider>
 );

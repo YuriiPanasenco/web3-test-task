@@ -5,6 +5,8 @@ export interface Drink {
     strDrinkThumb: string;
     strCategory: string;
     // Add other fields as needed
+
+    isFavourite: boolean
 }
 
 export interface DrinksState {

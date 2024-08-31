@@ -5,41 +5,37 @@ import {AppDispatch, RootState} from "../redux/store";
 import {Drink, DrinksState} from "../dto/Drinks";
 import DrinkCard from "../components/DrinkCard";
 import SearchInput from "../components/ui-kit/SearchInput";
-import {fetchDrinks, fetchRandomDrink} from "../redux/slices/drink/drinkActions";
+import {addFavourite, fetchAllDrinks, fetchRandomDrink, removeFavourite} from "../redux/slices/drink/drinkActions";
 import NoSearchResults from "../components/NotFound";
 import LoadingSpinner from "../components/ui-kit/LoadinSpinner";
 import TagSelect from "../components/TagSelect/TagSelect";
 import {CategoriesState} from "../dto/Categories";
 import {fetchCategories} from "../redux/slices/category/categoriesActions";
 import Opps from "../components/Opps";
-import {addFavourite, fetchFavourites, removeFavourite} from "../redux/slices/favourites/favouritesActions";
 import Modal from "../components/ui-kit/Modal";
 import Button from "../components/ui-kit/Button";
+import API, {AnyAPIInstanceType} from "../api/API";
+import {Exception} from "../dto/Exception";
+import {deepCopy} from "../tools";
 
-type DrinksPagePropsType = {
+type DrinksPagePropsType<T extends API> = {
+    api: AnyAPIInstanceType<T>
     favouriteOnly: boolean
 }
 
-const DrinkListPage: React.FC<DrinksPagePropsType> = ({favouriteOnly = false}) => {
+function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX {
     const dispatch: AppDispatch = useDispatch();
-    let drinksState: DrinksState = useSelector((state: RootState) => state.drinkList);
+    const drinksState: DrinksState = useSelector((state: RootState) => state.drinkList);
     const categoriesState: CategoriesState = useSelector((state: RootState) => state.categories);
-    const favouritesState: DrinksState = useSelector((state: RootState) => state.favourites);
 
     const [search, changeSearch] = useState("");
     const [category, changeCategory] = useState(null);
-    const [openDrinkDetail, changeOpenDrinkDetail] = useState(null);
+    const [openDrinkDetail, changeOpenDrinkDetail]: [Drink | Exception, () => void] = useState(null);
 
-    if (favouriteOnly) {
-        drinksState = favouritesState;
-    }
 
     useEffect(() => {
-        dispatch(fetchFavourites(search, category?.value));
-        if (!favouriteOnly) {
-            dispatch(fetchDrinks(search, category?.value));
-        }
-    }, [dispatch, search, category, favouriteOnly]);
+        dispatch(fetchAllDrinks(api, search, category?.value));
+    }, [dispatch, search, category, api]);
 
     useEffect(() => {
         dispatch(fetchCategories());
@@ -47,11 +43,11 @@ const DrinkListPage: React.FC<DrinksPagePropsType> = ({favouriteOnly = false}) =
 
     const handleChangeFavourite = useCallback((drink: Drink, favourite: boolean) => {
         if (favourite) {
-            dispatch(addFavourite(drink));
+            dispatch(addFavourite(api, drink));
         } else {
-            dispatch(removeFavourite(drink));
+            dispatch(removeFavourite(api, drink));
         }
-    }, [dispatch]);
+    }, [api, dispatch]);
 
     const handleGetDrinkDetail = (drink: Drink) => {
         changeOpenDrinkDetail(drink);
@@ -61,10 +57,12 @@ const DrinkListPage: React.FC<DrinksPagePropsType> = ({favouriteOnly = false}) =
     };
 
     const handleFetchRandom = useCallback(() => {
-        dispatch(fetchRandomDrink()).then((drink: Drink) => {
+        dispatch(fetchRandomDrink(api)).then((drink: Drink) => {
             changeOpenDrinkDetail(drink);
+        }).catch(e => {
+            changeOpenDrinkDetail(e);
         });
-    }, [dispatch, changeOpenDrinkDetail]);
+    }, [dispatch, changeOpenDrinkDetail, api]);
 
 
     let renderComponent;
@@ -102,26 +100,34 @@ const DrinkListPage: React.FC<DrinksPagePropsType> = ({favouriteOnly = false}) =
                                 className="flex flex-col items-end border rounded-lg shadow-md w-full min-width-[90%] md:w-[45%] lg:w-[32%] p-4 bg-white"
                                 onToggleFavourite={handleChangeFavourite}
                                 onOpen={handleGetDrinkDetail}
-                                isFavourite={favouritesState.drinks.findIndex((d: Drink) => d.idDrink == drink.idDrink) >= 0}
+                                isFavourite={drink.isFavourite}
                             />
                         )}
                     </>}
 
-                    {!openDrinkDetail ? "" :
-                        <Modal isOpen={openDrinkDetail} onClose={handleCloseDetailModal}>
-                            <DrinkCard drink={openDrinkDetail}
+                    {openDrinkDetail &&
+                    <Modal isOpen={openDrinkDetail} onClose={handleCloseDetailModal}>
+                        {(openDrinkDetail instanceof Exception) ?
+                            <Opps error={openDrinkDetail}/>
+                            : <DrinkCard drink={openDrinkDetail}
                                 className="flex flex-col items-end"
-                                onToggleFavourite={handleChangeFavourite}
+                                onToggleFavourite={() => {
+                                    const copy = deepCopy(openDrinkDetail);
+                                    copy.isFavourite = !copy.isFavourite;
+                                    handleChangeFavourite(openDrinkDetail, copy.isFavourite);
+                                    changeOpenDrinkDetail(copy);
+                                }}
                                 onOpen={handleGetDrinkDetail}
-                                isFavourite={favouritesState.drinks.findIndex((d: Drink) => d.idDrink == openDrinkDetail.idDrink) >= 0}
+                                isFavourite={openDrinkDetail.isFavourite}
                             />
-                        </Modal>
+                        }
+                    </Modal>
                     }
                 </div>
             </div>
         </PageTemplate>
     );
-};
+}
 
 export default DrinkListPage;
 

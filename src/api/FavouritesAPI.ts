@@ -1,18 +1,9 @@
 import {Drink} from "../dto/Drinks";
 import {Category} from "../dto/Categories";
 import API from './API'
-
-const LOCAL_STORAGE_KEY = "favourites";
+import {Exception} from "../dto/Exception";
 
 export default class FavouritesAPI extends API {
-    protected static _instance: FavouritesAPI;
-
-    public static getInstance() {
-        if (!FavouritesAPI._instance) {
-            FavouritesAPI._instance = new FavouritesAPI();
-        }
-        return FavouritesAPI._instance;
-    }
 
     /**
      * @param {string} search
@@ -22,7 +13,7 @@ export default class FavouritesAPI extends API {
     public searchDrinks(search: string, category: Category): Promise<Drink[]> {
         return new Promise((resolve) => {
             try {
-                const drinks: Drink[] = this.read()
+                const drinks: Drink[] = this.readFavourite()
                     .filter((d: Drink) => (
                         d.strDrink.includes(search) &&
                         (category ? d.strCategory == category.strCategory : true)
@@ -34,49 +25,13 @@ export default class FavouritesAPI extends API {
         });
     }
 
-
-    public remove(drink: Drink) {
-        return new Promise((resolve, reject) => {
-            try {
-                const drinks = this.read().filter(d => d.idDrink != drink.idDrink);
-                resolve(this.write(drinks));
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
-
-    public add(drink: Drink) {
-        return new Promise((resolve, reject) => {
-            try {
-                const drinks = this.read();
-                drinks.push(drink);
-                resolve(this.write(drinks));
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
-
-
-    private read(): Drink[] {
-        try {
-            const storedItem = localStorage.getItem(LOCAL_STORAGE_KEY);
-            if (storedItem) {
-                return JSON.parse(storedItem);
-            }
-        } catch {
-            //TODO: probably might be some other error expect the parse error
+    async fetchRandomDrink(): Promise<Drink[]> {
+        const drinks = this.readFavourite();
+        if (drinks.length == 0) {
+            return Promise.reject(new Exception("No Drinks in this list to get a random one"));
         }
-        return [];
+        const randomIndex = Math.floor(Math.random() * drinks.length);
+        return Promise.resolve([drinks[randomIndex]]);
     }
 
-    private write(drinks: Drink[]): boolean {
-        try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(drinks));
-            return true;
-        } catch {
-            return false;
-        }
-    }
 }

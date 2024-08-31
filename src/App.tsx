@@ -2,15 +2,18 @@ import './App.css'
 import DrinkListPage from "./pages/DrinkListPage";
 import {RouterProvider} from "react-router-dom";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import HTTPDrinksAPI from "./api/HTTPDrinksAPI";
+import FavouritesAPI from "./api/FavouritesAPI";
+import {apiFactory} from "./api/API";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <DrinkListPage/>,
+        element: <DrinkListPage api={apiFactory(HTTPDrinksAPI)}/>,
     },
     {
         path: "/favourites",
-        element: <DrinkListPage favouriteOnly={true}/>
+        element: <DrinkListPage api={apiFactory(FavouritesAPI)}/>
     }
 ]);
 

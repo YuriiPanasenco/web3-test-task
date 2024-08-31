@@ -1,11 +1,11 @@
 import {configureStore, isPlain} from '@reduxjs/toolkit';
 import {thunk} from 'redux-thunk';
 import {Exception} from "../dto/Exception";
-import authSlice from './slices/authSlice';
+import authSlice from './slices/auth/authSlice';
 import drinkListSlice from "./slices/drink/drinkListSlice";
 import categoriesSlice from "./slices/category/categoriesSlice";
-import favouritesSlice from "./slices/favourites/favouritesSlice";
 import randomDrinkSlice from "./slices/drink/randomDrinkSlice";
+import blockchainSlice from "./slices/blockchain/blockchainSlice";
 
 
 const store = configureStore({
@@ -13,14 +13,14 @@ const store = configureStore({
         auth: authSlice,
         drinkList: drinkListSlice,
         randomDrink: randomDrinkSlice,
-        favourites: favouritesSlice,
         categories: categoriesSlice,
+        blockchain: blockchainSlice,
     },
     middleware: getDefaultMiddleware =>
         getDefaultMiddleware({
             serializableCheck: {
                 isSerializable: (value) => {
-                    if (value instanceof Exception) {
+                    if ((value instanceof Exception)) {
                         return true;
                     }
                     return isPlain(value);
