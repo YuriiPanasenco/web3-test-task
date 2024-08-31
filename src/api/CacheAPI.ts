@@ -36,6 +36,7 @@ export default class CacheAPI extends API {
     }
 
     public fetchRandomDrink(): Promise<Drink[]> {
+        this.cache = {};
         return this.api.fetchRandomDrink();
     }
 
@@ -49,5 +50,10 @@ export default class CacheAPI extends API {
             this.cache[key] = cacheValue;
         }
         return cacheValue.value;
+    }
+
+    public rateDrink(drink: Drink, rate: number): Promise<number> {
+        this.cache = {};
+        return this.api.rateDrink(drink, rate);
     }
 }

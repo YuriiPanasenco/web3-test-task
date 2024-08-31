@@ -8,6 +8,8 @@ export const FETCH_RANDOM_DRINK_REQUEST = "FETCH_RANDOM_DRINK_REQUEST";
 export const FETCH_RANDOM_DRINK_SUCCESS = "FETCH_RANDOM_DRINK_SUCCESS";
 export const FETCH_RANDOM_DRINK_FAILURE = "FETCH_RANDOM_DRINK_FAILURE";
 
+export const CHANGE_RANK_SUCCESS = "CHANGE_RANK_SUCCESS";
+
 interface FetchDrinksRequestAction {
     type: typeof FETCH_DRINKS_REQUEST;
 }
@@ -36,6 +38,11 @@ interface FetchRandomDrinkFailureAction {
     payload: string;
 }
 
+interface ChangeRankSuccessAction {
+    type: typeof CHANGE_RANK_SUCCESS;
+    payload: { drink: Drink, rank: number };
+}
+
 export type DrinksActionTypes =
     | FetchDrinksRequestAction
     | FetchDrinksSuccessAction
@@ -43,4 +50,5 @@ export type DrinksActionTypes =
     | FetchRandomDrinkRequestAction
     | FetchRandomDrinkSuccessAction
     | FetchRandomDrinkFailureAction
+    | ChangeRankSuccessAction
     ;

@@ -6,7 +6,8 @@ import {
     FETCH_DRINKS_SUCCESS,
     FETCH_RANDOM_DRINK_FAILURE,
     FETCH_RANDOM_DRINK_REQUEST,
-    FETCH_RANDOM_DRINK_SUCCESS
+    FETCH_RANDOM_DRINK_SUCCESS,
+    CHANGE_RANK_SUCCESS
 } from "./drinkReduxTypes";
 import {FavouritesActionTypes, ADD_FAVOURITES_REQUEST, REMOVE_FAVOURITES_REQUEST} from "./favouritesReduxTypes";
 import {Category} from "../../../dto/Categories";
@@ -58,6 +59,14 @@ export function addFavourite<T extends API>(api: T, drink: Drink) {
     return async (dispatch: Dispatch<FavouritesActionTypes>) => {
         await api.addFavourite(drink);
         dispatch({type: ADD_FAVOURITES_REQUEST, payload: drink});
+    };
+}
+
+export function rateDrink<T extends API>(api: T, drink: Drink, rank: number) {
+    return async (dispatch: Dispatch<DrinksActionTypes>) => {
+        const newRank = await api.rateDrink(drink, rank);
+        dispatch({type: CHANGE_RANK_SUCCESS, payload: {drink, rank: newRank}});
+        return newRank;
     };
 }
 

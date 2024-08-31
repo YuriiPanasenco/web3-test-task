@@ -2,6 +2,7 @@ import {Drink} from "../dto/Drinks";
 import {Category} from "../dto/Categories";
 import API from './API'
 import {Exception} from "../dto/Exception";
+import Web3DrinksAPI from "./web3/Web3DrinksAPI";
 
 export default class FavouritesAPI extends API {
 
@@ -37,5 +38,13 @@ export default class FavouritesAPI extends API {
     fetchCategories(): Promise<Category[]> {
         const drinks = this.readFavourite();
         return Promise.resolve(this.selectUniqCategories(drinks));
+    }
+
+
+    async rateDrink(drink: Drink, rate: number): Promise<number> {
+        if ("averageRating" in drink) {
+            return await new Web3DrinksAPI().rateDrink(drink, rate);
+        }
+        return await super.rateDrink(drink, rate);
     }
 }

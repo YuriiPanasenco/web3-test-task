@@ -1,6 +1,8 @@
 import {Category} from "../dto/Categories";
 import {Drink} from "../dto/Drinks";
 import {deepCopy, hashObject} from "../tools";
+import InvalidAPIRequestException from "./InvalidAPIRequestException";
+import {Exception} from "../dto/Exception";
 
 const LOCAL_STORAGE_KEY = "favourites";
 
@@ -37,6 +39,15 @@ export default abstract class API {
         });
     }
 
+    /**
+     * @param drink
+     * @param rate 1-5
+     * @return Promise<number> - new average rate
+     * @throws InvalidAPIRequestException - is the API doesn't support this functionality
+     */
+    public async rateDrink(drink: Drink, rate: number): Promise<number> {
+        throw new InvalidAPIRequestException("The API instance doesn't support rating a drinks", {drink, rate});
+    }
 
     protected generateIds(drinks: Drink[] = []) {
         if (!drinks) return;
@@ -64,6 +75,21 @@ export default abstract class API {
         } catch {
             return false;
         }
+    }
+
+    protected async updateFavourite(drink: Drink): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            try {
+                drink = deepCopy(drink);
+                const drinks = this.readFavourite();
+                const index = drinks.findIndex(d => d.idDrink == drink.idDrink);
+                if (!index) reject(new Exception("Trying to update not favourite drink: " + drink));
+                drinks[index] = drink;
+                resolve(this.writeFavourite(drinks));
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     protected addFavouriteParam(drinks: Drink[]): Drink[] {

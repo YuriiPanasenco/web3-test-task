@@ -1,10 +1,11 @@
-import {readContract, readContracts} from "@wagmi/core";
+import {readContract, readContracts, sendTransaction, waitForTransactionReceipt} from "@wagmi/core";
 import {Drink} from "../../dto/Drinks";
 import {Category} from "../../dto/Categories";
 import API from '../API'
 import {getUniqueByObjectProp} from "../../tools";
 import {config} from "../../wagmi.config";
 import {abi} from "./abi";
+import {encodeFunctionData} from "viem";
 
 
 const CONTRACT_ADDRESS = '0xe9f1B66369b06588589226848a97738beaB283E5';
@@ -37,15 +38,9 @@ export default class Web3DrinksAPI extends API {
     public async searchDrinks(search: string, category?: Category): Promise<Drink[]> {
         const rawCocktailData = await readContracts(config, {batchSize: 0, contracts: this.generateCallForGetCocktail(0, await this.getCount())});
 
-        const drinks = rawCocktailData.map<Drink>((data, index): Drink => {
-            const res = mapResponseToDrink(data.result);
-            res.sourceId = index;
-            return res;
-        });
+        const drinks = this.prepareData(rawCocktailData);
 
-        this.generateIds(drinks);
-        const uniqRecords: Drink[] = getUniqueByObjectProp(drinks, 'idDrink');
-        return this.addFavouriteParam(uniqRecords).filter((d: Drink) => (
+        return getUniqueByObjectProp(drinks, 'idDrink').filter((d: Drink) => (
             d.strDrink.includes(search) &&
             (category ? d.strCategory == category.strCategory : true)
         ));
@@ -55,13 +50,7 @@ export default class Web3DrinksAPI extends API {
         const count = new Number(await this.getCount());
         const index = Math.floor(Math.random() * count)
         const rawCocktailData = await readContracts(config, {batchSize: 0, contracts: this.generateCallForGetCocktail(index, 1)});
-        const drinks = rawCocktailData.map<Drink>((data, index): Drink => {
-            const res = mapResponseToDrink(data.result);
-            res.sourceId = index;
-            return res;
-        });
-        this.generateIds(drinks);
-        return this.addFavouriteParam(drinks);
+        return this.prepareData(rawCocktailData, index);
     }
 
     async fetchCategories(): Promise<Category[]> {
@@ -69,6 +58,34 @@ export default class Web3DrinksAPI extends API {
         return this.selectUniqCategories(drinks);
     }
 
+    public async rateDrink(drink: Drink, rate: number): Promise<number> {
+
+        const transactionHash = await sendTransaction(config, {
+            to: CONTRACT_ADDRESS,
+            data: encodeFunctionData({
+                abi: abi,
+                functionName: 'rateCocktail',
+                args: [drink.sourceId, rate],
+            }),
+            value: '0x0',
+        });
+
+        await waitForTransactionReceipt(config, {hash: transactionHash});
+        const rawCocktailData = await readContracts(config, {batchSize: 0, contracts: this.generateCallForGetCocktail(drink.sourceId as number, 1)});
+        const newDrink = this.prepareData(rawCocktailData, drink.sourceId as number)[0];
+        await this.updateFavourite(newDrink);
+        return Number(newDrink.averageRating);
+    }
+
+    private prepareData(rawCocktailData, indexShift = 0): Drink[] {
+        const drinks = rawCocktailData.map<Drink>((data, index): Drink => {
+            const res = mapResponseToDrink(data.result);
+            res.sourceId = index + indexShift;
+            return res;
+        });
+        this.generateIds(drinks);
+        return this.addFavouriteParam(drinks);
+    }
 
     private async getCount() {
         return await readContract(config, {

@@ -5,7 +5,7 @@ import {AppDispatch, RootState} from "../redux/store";
 import {Drink, DrinksState} from "../dto/Drinks";
 import DrinkCard from "../components/DrinkCard";
 import SearchInput from "../components/ui-kit/SearchInput";
-import {addFavourite, fetchAllDrinks, fetchRandomDrink, removeFavourite} from "../redux/slices/drink/drinkActions";
+import {addFavourite, fetchAllDrinks, fetchRandomDrink, rateDrink, removeFavourite} from "../redux/slices/drink/drinkActions";
 import NoSearchResults from "../components/NotFound";
 import LoadingSpinner from "../components/ui-kit/LoadinSpinner";
 import TagSelect from "../components/TagSelect/TagSelect";
@@ -23,6 +23,8 @@ type DrinksPagePropsType<T extends API> = {
     favouriteOnly: boolean
 }
 
+type RatingStage = { status: "loading" | "error", drink: Drink, error: Exception } | null;
+
 function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX {
     const dispatch: AppDispatch = useDispatch();
     const drinksState: DrinksState = useSelector((state: RootState) => state.drinkList);
@@ -31,6 +33,7 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
     const [search, changeSearch] = useState("");
     const [category, changeCategory] = useState(null);
     const [openDrinkDetail, changeOpenDrinkDetail]: [Drink | Exception | "loading", () => void] = useState(null);
+    const [ratingState, changeRatingState]: [RatingStage, (RatingStage) => void] = useState(null);
 
 
     useEffect(() => {
@@ -39,6 +42,7 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
 
     useEffect(() => {
         dispatch(fetchCategories(api));
+        changeRatingState(null);
     }, [dispatch, api]);
 
     const handleChangeFavourite = useCallback((drink: Drink, favourite: boolean) => {
@@ -65,6 +69,14 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
         });
     }, [dispatch, changeOpenDrinkDetail, api]);
 
+    const handleOnRatingChange = useCallback((drink: Drink, newRate: number) => {
+        changeRatingState({status: "loading", drink, error: null});
+        dispatch(rateDrink(api, drink, newRate)).then(() => {
+            changeRatingState(null);
+        }).catch(e => {
+            changeRatingState({status: "error", drink, error: e});
+        });
+    }, [dispatch, api]);
 
     let renderComponent;
 
@@ -100,8 +112,11 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
                             <DrinkCard key={drink.idDrink} drink={drink}
                                 className="flex flex-col items-end border rounded-lg shadow-md w-full min-width-[90%] md:w-[45%] lg:w-[32%] p-4 bg-white"
                                 onToggleFavourite={handleChangeFavourite}
+                                onRatingChange={handleOnRatingChange}
                                 onOpen={handleGetDrinkDetail}
                                 isFavourite={drink.isFavourite}
+                                status={ratingState?.drink?.idDrink == drink.idDrink ? ratingState.status : 'display'}
+                                error={ratingState?.error}
                             />
                         )}
                     </>}
@@ -119,8 +134,11 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
                                             handleChangeFavourite(openDrinkDetail, copy.isFavourite);
                                             changeOpenDrinkDetail(copy);
                                         }}
+                                        onRatingChange={handleOnRatingChange}
                                         onOpen={handleGetDrinkDetail}
                                         isFavourite={openDrinkDetail.isFavourite}
+                                        status={ratingState?.drink?.idDrink == openDrinkDetail.idDrink ? ratingState.status : 'display'}
+                                        error={ratingState?.error}
                                     />
                                     <p><b>HashID: </b>{openDrinkDetail.idDrink}</p>
                                     <p><b>Category: </b>{openDrinkDetail.strCategory}</p>
