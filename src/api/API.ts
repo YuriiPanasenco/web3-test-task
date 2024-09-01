@@ -83,7 +83,10 @@ export default abstract class API {
                 drink = deepCopy(drink);
                 const drinks = this.readFavourite();
                 const index = drinks.findIndex(d => d.idDrink == drink.idDrink);
-                if (!index) reject(new Exception("Trying to update not favourite drink: " + drink));
+                if (index < 0) {
+                    reject(new Exception("Trying to update not favourite drink: " + drink));
+                    return;
+                }
                 drinks[index] = drink;
                 resolve(this.writeFavourite(drinks));
             } catch (error) {

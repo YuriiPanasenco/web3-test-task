@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from "../components/Header";
-import {useAppSelector} from "../hooks/useAuth";
+import {useAppSelector} from "../hooks/useAppSelector";
 import LoginPage from "./LoginPage";
 import Opps from "../components/Opps";
 

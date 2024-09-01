@@ -1,5 +1,5 @@
 import {http, createConfig} from 'wagmi';
-import {mainnet, sepolia} from 'wagmi/chains';
+import {sepolia} from 'wagmi/chains';
 import {mock} from "@wagmi/connectors";
 
 export const connectors = [
@@ -16,7 +16,6 @@ export const connectors = [
 export const config = createConfig({
     chains: [sepolia],
     transports: {
-        [mainnet.id]: http(),
         [sepolia.id]: http(),
     },
     connectors,

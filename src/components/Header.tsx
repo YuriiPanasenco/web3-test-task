@@ -1,43 +1,10 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Link} from 'react-router-dom';
-import {useDispatch} from 'react-redux';
-import {logout, loading, login} from '../redux/slices/auth/authSlice';
-import {useAccount, useConnect, useDisconnect} from "wagmi";
-import {useAppSelector} from "../hooks/useAuth";
+import useAuth from "../hooks/web3/useAuth";
 
 
 const Header: React.FC = () => {
-    const storeAuthStatus = useAppSelector(state => state.auth.status);
-    const dispatch = useDispatch();
-
-    const {connectors, connectAsync, status} = useConnect();
-    const {disconnectAsync} = useDisconnect();
-    const account = useAccount();
-
-    const handleLogout = async () => {
-        await disconnectAsync();
-        dispatch(logout());
-    };
-
-    const handleLogin = async (connector) => {
-        await connectAsync({connector});
-        dispatch(login());
-    };
-
-    useEffect(() => {
-        if (storeAuthStatus == 'disconnected' && account.status === 'connected') {
-            dispatch(login());
-        }
-        if (storeAuthStatus == 'connected' && account.status === 'disconnected') {
-            dispatch(logout());
-        }
-    }, [dispatch, storeAuthStatus, account]);
-
-    useEffect(() => {
-        if (status.includes("connecting")) {
-            dispatch(loading());
-        }
-    }, [dispatch, status]);
+    const {account, connectors, handleLogin, handleLogout} = useAuth();
 
     return (
         <header className="bg-white shadow-md">
@@ -52,7 +19,7 @@ const Header: React.FC = () => {
 
 
                     <div className="flex md:space-x-8 items-stretch">
-                        <Link to="/" className="content-center text-gray-900 hover:text-indigo-600 font-medium">Http </Link>
+                        <Link to="/" className="content-center text-gray-900 hover:text-indigo-600 font-medium">Web2 </Link>
                         {account.status === 'connected' && (
                             <>
                                 <Link to="/web3" className="text-gray-900 hover:text-indigo-600 font-medium content-center">Web3</Link>

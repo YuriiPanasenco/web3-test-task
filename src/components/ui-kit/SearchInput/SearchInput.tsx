@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import useDebounce from "../../hooks/useDebounce";
+import useDebounce from "../../../hooks/useDebounce";
 
 
 type SearchInputProps = {
@@ -9,12 +9,13 @@ type SearchInputProps = {
 
 const SearchInput: React.FC<SearchInputProps> = ({queryString = "", searchHandler}) => {
     const [query, setQuery] = useState(queryString);
-
-    const [debouncedQuery, enter] = useDebounce(query, 1500); // Затримка 1.5 секунди
+    const [debouncedQuery, enter]: [string, () => void] = useDebounce(query, 1500);
 
     useEffect(() => {
-        searchHandler(debouncedQuery);
-    }, [debouncedQuery, searchHandler]);
+        if (debouncedQuery !== queryString) {
+            searchHandler(debouncedQuery);
+        }
+    }, [debouncedQuery, searchHandler, queryString]);
 
 
     const handleKeyPress = (event) => {

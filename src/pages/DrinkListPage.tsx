@@ -3,8 +3,7 @@ import PageTemplate from "./PageTemplate";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../redux/store";
 import {Drink, DrinksState} from "../dto/Drinks";
-import DrinkCard from "../components/DrinkCard";
-import SearchInput from "../components/ui-kit/SearchInput";
+import SearchInput from "../components/ui-kit/SearchInput/SearchInput";
 import {addFavourite, fetchAllDrinks, fetchRandomDrink, rateDrink, removeFavourite} from "../redux/slices/drink/drinkActions";
 import NoSearchResults from "../components/NotFound";
 import LoadingSpinner from "../components/ui-kit/LoadinSpinner";
@@ -12,11 +11,13 @@ import TagSelect from "../components/TagSelect/TagSelect";
 import {CategoriesState} from "../dto/Categories";
 import {fetchCategories} from "../redux/slices/category/categoriesActions";
 import Opps from "../components/Opps";
-import Modal from "../components/ui-kit/Modal";
 import Button from "../components/ui-kit/Button";
 import API from "../api/API";
 import {Exception} from "../dto/Exception";
 import {deepCopy} from "../tools";
+import {useEnsureSepoliaNetwork} from "../hooks/web3/useEnsureSepoliaNetwork";
+import PreviewDrinkCard from "../components/PreviewDrinkCard";
+import DetailDrinkModal from "./DrinkListPage/DetailDrinkModal";
 
 type DrinksPagePropsType<T extends API> = {
     api: T
@@ -24,26 +25,27 @@ type DrinksPagePropsType<T extends API> = {
 }
 
 type RatingStage = { status: "loading" | "error", drink: Drink, error: Exception } | null;
+type DetailedDrinkModal = Drink | Exception | "loading";
 
 function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX {
+    const [switchToSepoliaError] = useEnsureSepoliaNetwork();
     const dispatch: AppDispatch = useDispatch();
     const drinksState: DrinksState = useSelector((state: RootState) => state.drinkList);
     const categoriesState: CategoriesState = useSelector((state: RootState) => state.categories);
 
     const [search, changeSearch] = useState("");
     const [category, changeCategory] = useState(null);
-    const [openDrinkDetail, changeOpenDrinkDetail]: [Drink | Exception | "loading", () => void] = useState(null);
+    const [openDrinkDetail, changeOpenDrinkDetail]: [DetailedDrinkModal, (DetailedDrinkModal) => void] = useState(null);
     const [ratingState, changeRatingState]: [RatingStage, (RatingStage) => void] = useState(null);
 
 
     useEffect(() => {
         dispatch(fetchAllDrinks(api, search, category?.value));
-    }, [dispatch, search, category, api]);
-
+    }, [dispatch, search, category, api, switchToSepoliaError]);
     useEffect(() => {
         dispatch(fetchCategories(api));
         changeRatingState(null);
-    }, [dispatch, api]);
+    }, [dispatch, api, switchToSepoliaError]);
 
     const handleChangeFavourite = useCallback((drink: Drink, favourite: boolean) => {
         if (favourite) {
@@ -60,22 +62,25 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
         changeOpenDrinkDetail(null);
     };
 
-    const handleFetchRandom = useCallback(() => {
+    const handleFetchRandom = useCallback(async () => {
         changeOpenDrinkDetail("loading");
-        dispatch(fetchRandomDrink(api)).then((drink: Drink) => {
+        try {
+            const drink: Drink = await dispatch(fetchRandomDrink(api));
             changeOpenDrinkDetail(drink);
-        }).catch(e => {
+        } catch (e) {
             changeOpenDrinkDetail(e);
-        });
+        }
     }, [dispatch, changeOpenDrinkDetail, api]);
 
-    const handleOnRatingChange = useCallback((drink: Drink, newRate: number) => {
+    const handleOnRatingChange = useCallback(async (drink: Drink, setRate: number) => {
         changeRatingState({status: "loading", drink, error: null});
-        dispatch(rateDrink(api, drink, newRate)).then(() => {
+        try {
+            const newRate = await dispatch(rateDrink(api, drink, setRate));
             changeRatingState(null);
-        }).catch(e => {
+            changeOpenDrinkDetail((prev: Drink) => prev && "averageRating" in prev ? {...prev, averageRating: newRate} : prev);
+        } catch (e) {
             changeRatingState({status: "error", drink, error: e});
-        });
+        }
     }, [dispatch, api]);
 
     let renderComponent;
@@ -109,47 +114,35 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
                 <div className="flex flex-wrap gap-x-4 gap-y-6 justify-center">
                     {renderComponent ? renderComponent : <>
                         {drinksState.drinks.map((drink: Drink) =>
-                            <DrinkCard key={drink.idDrink} drink={drink}
+                            <PreviewDrinkCard key={drink.idDrink} drink={drink}
                                 className="flex flex-col items-end border rounded-lg shadow-md w-full min-width-[90%] md:w-[45%] lg:w-[32%] p-4 bg-white"
                                 onToggleFavourite={handleChangeFavourite}
                                 onRatingChange={handleOnRatingChange}
                                 onOpen={handleGetDrinkDetail}
-                                isFavourite={drink.isFavourite}
-                                status={ratingState?.drink?.idDrink == drink.idDrink ? ratingState.status : 'display'}
-                                error={ratingState?.error}
+                                ratingStage={ratingState}
                             />
                         )}
                     </>}
 
-                    {openDrinkDetail &&
-                    <Modal isOpen={openDrinkDetail} onClose={handleCloseDetailModal}>
-                        {typeof openDrinkDetail == 'string' ? <LoadingSpinner/> :
-                            (openDrinkDetail instanceof Exception) ? <Opps error={openDrinkDetail}/>
-                                : <div className="flex flex-col text-black text-left">
-                                    <DrinkCard drink={openDrinkDetail}
-                                        className="flex flex-col items-end"
-                                        onToggleFavourite={() => {
-                                            const copy = deepCopy(openDrinkDetail);
-                                            copy.isFavourite = !copy.isFavourite;
-                                            handleChangeFavourite(openDrinkDetail, copy.isFavourite);
-                                            changeOpenDrinkDetail(copy);
-                                        }}
-                                        onRatingChange={handleOnRatingChange}
-                                        onOpen={handleGetDrinkDetail}
-                                        isFavourite={openDrinkDetail.isFavourite}
-                                        status={ratingState?.drink?.idDrink == openDrinkDetail.idDrink ? ratingState.status : 'display'}
-                                        error={ratingState?.error}
-                                    />
-                                    <p><b>HashID: </b>{openDrinkDetail.idDrink}</p>
-                                    <p><b>Category: </b>{openDrinkDetail.strCategory}</p>
-                                </div>
-                        }
-                    </Modal>
-                    }
+                    {openDrinkDetail && (
+                        <DetailDrinkModal
+                            openDrinkDetail={openDrinkDetail}
+                            onClose={handleCloseDetailModal}
+                            onToggleFavourite={() => {
+                                const copy = deepCopy(openDrinkDetail);
+                                copy.isFavourite = !copy.isFavourite;
+                                handleChangeFavourite(openDrinkDetail, copy.isFavourite);
+                                changeOpenDrinkDetail(copy);
+                            }}
+                            onRatingChange={handleOnRatingChange}
+                            ratingStage={ratingState}
+                            handleAddToWeb3={(dr) => consol.log(dr)}
+                        />)}
                 </div>
             </div>
         </PageTemplate>
-    );
+    )
+    ;
 }
 
 export default DrinkListPage;
