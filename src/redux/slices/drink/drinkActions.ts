@@ -16,9 +16,10 @@ import {Exception} from "../../../dto/Exception";
 import API from "../../../api/API";
 import {Drink} from "../../../dto/Drinks";
 import {hashObject} from "../../../tools";
+import Web3DrinksAPI from "../../../api/web3/Web3DrinksAPI";
+import ThunkActionType from "../ThunkActionType";
 
-
-export function fetchAllDrinks<T extends API>(api: T, search: string, category: Category | null) {
+export function fetchAllDrinks<T extends API>(api: T, search: string, category?: Category): ThunkActionType<void, DrinksActionTypes> {
     return async (dispatch: Dispatch<DrinksActionTypes>) => {
         dispatch({type: FETCH_DRINKS_REQUEST});
 
@@ -40,7 +41,7 @@ export function fetchAllDrinks<T extends API>(api: T, search: string, category: 
     };
 }
 
-export function fetchRandomDrink<T extends API>(api: T) {
+export function fetchRandomDrink<T extends API>(api: T): ThunkActionType<Drink, DrinksActionTypes> {
     return async (dispatch: Dispatch<DrinksActionTypes>) => {
         dispatch({type: FETCH_RANDOM_DRINK_REQUEST});
         try {
@@ -55,14 +56,14 @@ export function fetchRandomDrink<T extends API>(api: T) {
     };
 }
 
-export function addFavourite<T extends API>(api: T, drink: Drink) {
+export function addFavourite<T extends API>(api: T, drink: Drink): ThunkActionType<void, FavouritesActionTypes> {
     return async (dispatch: Dispatch<FavouritesActionTypes>) => {
         await api.addFavourite(drink);
         dispatch({type: ADD_FAVOURITES_REQUEST, payload: drink});
     };
 }
 
-export function rateDrink<T extends API>(api: T, drink: Drink, rank: number) {
+export function rateDrink<T extends API>(api: T, drink: Drink, rank: number): ThunkActionType<number, DrinksActionTypes> {
     return async (dispatch: Dispatch<DrinksActionTypes>) => {
         const newRank = await api.rateDrink(drink, rank);
         dispatch({type: CHANGE_RANK_SUCCESS, payload: {drink, rank: newRank}});
@@ -70,7 +71,14 @@ export function rateDrink<T extends API>(api: T, drink: Drink, rank: number) {
     };
 }
 
-export function removeFavourite<T extends API>(api: T, drink: Drink) {
+export function addToWeb3(drink: Drink): ThunkActionType<void, DrinksActionTypes> {
+    return async () => {
+        await new Web3DrinksAPI().addDrink(drink);
+        return;
+    };
+}
+
+export function removeFavourite<T extends API>(api: T, drink: Drink): ThunkActionType<void, FavouritesActionTypes> {
     return async (dispatch: Dispatch<FavouritesActionTypes>) => {
         await api.removeFavourite(drink);
         dispatch({type: REMOVE_FAVOURITES_REQUEST, payload: drink});

@@ -19,7 +19,16 @@ const DetailedDrinkCard: React.FC<DrinkCardProps> = ({drink, onToggleFavourite, 
         onToggleFavourite(drink, !drink.isFavourite);
     }, [drink, onToggleFavourite]);
 
-    const status = ratingStage?.drink?.idDrink === drink.idDrink ? ratingStage.status : 'display';
+    let status = 'display';
+    if (ratingStage?.drink?.idDrink === drink.idDrink) {
+        if (ratingStage?.status) {
+            status = ratingStage.status;
+        } else {
+            status = 'loading';
+        }
+    }
+
+
     const ingredients = Array.from({length: 14}, (_, index) => drink['strIngredient' + (index + 1)]).filter(i => !!i).join(",");
 
     return (
@@ -43,6 +52,7 @@ const DetailedDrinkCard: React.FC<DrinkCardProps> = ({drink, onToggleFavourite, 
                                 <div>
                                     <h2 className="text-left text-xl font-bold text-gray-900 mb-2">{drink.strDrink}</h2>
                                     <p><b>HashID: </b>{drink.idDrink}</p>
+                                    <p><b>Source: </b>{drink.averageRating ? "Web3" : "Web2"}</p>
                                     <p><b>Category: </b>{drink.strCategory}</p>
                                     <p><b>Type: </b>{drink.strAlcoholic}</p>
                                     <p><b>Ingredients: </b>{ingredients}</p>

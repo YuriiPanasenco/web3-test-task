@@ -23,12 +23,16 @@ const DetailDrinkModal: React.FC<DetailDrinkModalModalPropsType> = ({
     onToggleFavourite,
     onRatingChange,
     ratingStage,
-    handleAddToWeb3
+    onAddToWeb3
 }) => {
     return (
         <Modal onClose={onClose}
-            actions={!openDrinkDetail?.averageRating && <Button text="Add to contract" onClick={() => handleAddToWeb3(openDrinkDetail as Drink)}/>}>
-            {typeof openDrinkDetail === 'string' ? <LoadingSpinner/> :
+            actions={
+                !openDrinkDetail?.averageRating &&
+                   <Button disabled={ratingStage?.status === 'loading'} text="Add to contract"
+                       onClick={() => onAddToWeb3(openDrinkDetail as Drink)}/>}>
+
+            {ratingStage?.status === 'loading' ? <LoadingSpinner/> :
                 openDrinkDetail instanceof Exception ? <Opps error={openDrinkDetail}/> :
 
                     <DetailedDrinkCard drink={openDrinkDetail}

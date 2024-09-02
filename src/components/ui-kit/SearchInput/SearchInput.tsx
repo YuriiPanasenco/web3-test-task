@@ -11,11 +11,15 @@ const SearchInput: React.FC<SearchInputProps> = ({queryString = "", searchHandle
     const [query, setQuery] = useState(queryString);
     const [debouncedQuery, enter]: [string, () => void] = useDebounce(query, 1500);
 
+
     useEffect(() => {
-        if (debouncedQuery !== queryString) {
-            searchHandler(debouncedQuery);
-        }
-    }, [debouncedQuery, searchHandler, queryString]);
+        if (debouncedQuery !== queryString) searchHandler(debouncedQuery)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedQuery, searchHandler]);
+
+    useEffect(() => {
+        setQuery(queryString);
+    }, [queryString]);
 
 
     const handleKeyPress = (event) => {

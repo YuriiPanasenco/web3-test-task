@@ -1,4 +1,4 @@
-import {configureStore, isPlain} from '@reduxjs/toolkit';
+import {configureStore, isPlain, ThunkDispatch, UnknownAction} from '@reduxjs/toolkit';
 import {thunk} from 'redux-thunk';
 import {Exception} from "../dto/Exception";
 import authSlice from './slices/auth/authSlice';
@@ -29,6 +29,6 @@ const store = configureStore({
 });
 
 export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type AppDispatch = ThunkDispatch<RootState, unknown, UnknownAction>;
 
 export default store;

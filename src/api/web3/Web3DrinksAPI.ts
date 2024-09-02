@@ -1,4 +1,4 @@
-import {readContract, readContracts, sendTransaction, waitForTransactionReceipt} from "@wagmi/core";
+import {readContract, readContracts, sendTransaction, waitForTransactionReceipt, watchContractEvent} from "@wagmi/core";
 import {Drink} from "../../dto/Drinks";
 import {Category} from "../../dto/Categories";
 import API from '../API'
@@ -75,6 +75,58 @@ export default class Web3DrinksAPI extends API {
         const newDrink = this.prepareData(rawCocktailData, drink.sourceId as number)[0];
         await this.updateFavourite(newDrink);
         return Number(newDrink.averageRating);
+    }
+
+    public addDrink(drink: Drink): Promise<void> {
+        const generateIds = this.generateIds;
+        return new Promise((resolve, reject) => {
+            let unwatch = () => {
+            };
+            try {
+                unwatch = watchContractEvent(config, {
+                    address: CONTRACT_ADDRESS,
+                    abi: abi,
+                    eventName: 'CocktailAdded',
+                    onLogs(logs) {
+                        try {
+                            logs.forEach(log => {
+                                const tempDrink = {strDrink: log.args.name, strCategory: log.args.category, strDrinkThumb: drink.strDrinkThumb} as Drink;
+                                generateIds([tempDrink]);
+                                if (drink.idDrink == tempDrink.idDrink) {
+                                    unwatch();
+                                    resolve();
+                                }
+                            });
+                        } catch (e) {
+                            unwatch();
+                            reject(e);
+                        }
+                    }
+                });
+
+                sendTransaction(config, {
+                    to: CONTRACT_ADDRESS,
+                    data: encodeFunctionData({
+                        abi: abi,
+                        functionName: 'addCocktail',
+                        args: [drink.strDrink, drink.strDrinkThumb, drink.strCategory, 0, drink.strAlcoholic, 0],
+                    }),
+                    value: '0x0',
+                }).catch((e) => {
+                    unwatch();
+                    reject(e);
+                })
+            } catch (e) {
+                unwatch();
+                reject(e);
+            }
+        })
+
+
+        // const rawCocktailData = await readContracts(config, {batchSize: 0, contracts: this.generateCallForGetCocktail(drink.sourceId as number, 1)});
+        // const newDrink = this.prepareData(rawCocktailData, drink.sourceId as number)[0];
+        // await this.updateFavourite(newDrink);
+        // return Number(newDrink.averageRating);
     }
 
     private prepareData(rawCocktailData, indexShift = 0): Drink[] {

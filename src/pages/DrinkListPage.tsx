@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../redux/store";
 import {Drink, DrinksState} from "../dto/Drinks";
 import SearchInput from "../components/ui-kit/SearchInput/SearchInput";
-import {addFavourite, fetchAllDrinks, fetchRandomDrink, rateDrink, removeFavourite} from "../redux/slices/drink/drinkActions";
+import {addFavourite, addToWeb3, fetchAllDrinks, fetchRandomDrink, rateDrink, removeFavourite} from "../redux/slices/drink/drinkActions";
 import NoSearchResults from "../components/NotFound";
 import LoadingSpinner from "../components/ui-kit/LoadinSpinner";
 import TagSelect from "../components/TagSelect/TagSelect";
@@ -18,6 +18,7 @@ import {deepCopy} from "../tools";
 import {useEnsureSepoliaNetwork} from "../hooks/web3/useEnsureSepoliaNetwork";
 import PreviewDrinkCard from "../components/PreviewDrinkCard";
 import DetailDrinkModal from "./DrinkListPage/DetailDrinkModal";
+import {NavigateFunction, useNavigate} from "react-router-dom";
 
 type DrinksPagePropsType<T extends API> = {
     api: T
@@ -30,10 +31,11 @@ type DetailedDrinkModal = Drink | Exception | "loading";
 function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX {
     const [switchToSepoliaError] = useEnsureSepoliaNetwork();
     const dispatch: AppDispatch = useDispatch();
+    const navigate: NavigateFunction = useNavigate();
     const drinksState: DrinksState = useSelector((state: RootState) => state.drinkList);
     const categoriesState: CategoriesState = useSelector((state: RootState) => state.categories);
 
-    const [search, changeSearch] = useState("");
+    const [search, changeSearch]: [string, (string) => void] = useState("");
     const [category, changeCategory] = useState(null);
     const [openDrinkDetail, changeOpenDrinkDetail]: [DetailedDrinkModal, (DetailedDrinkModal) => void] = useState(null);
     const [ratingState, changeRatingState]: [RatingStage, (RatingStage) => void] = useState(null);
@@ -61,6 +63,9 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
     const handleCloseDetailModal = () => {
         changeOpenDrinkDetail(null);
     };
+    const handleChangeSearch = useCallback((text) => {
+        changeSearch(text);
+    }, [changeSearch]);
 
     const handleFetchRandom = useCallback(async () => {
         changeOpenDrinkDetail("loading");
@@ -83,6 +88,19 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
         }
     }, [dispatch, api]);
 
+    const handleAddToWeb3 = useCallback(async (drink: Drink) => {
+        changeRatingState({status: "loading", drink, error: null});
+        try {
+            await dispatch(addToWeb3(drink));
+            changeSearch(drink.strDrink);
+            changeRatingState(null);
+            changeOpenDrinkDetail(null);
+            navigate('/web3');
+        } catch (e) {
+            changeRatingState({status: "error", drink, error: e});
+        }
+    }, [dispatch, navigate]);
+
     let renderComponent;
 
     if (drinksState.loading) {
@@ -99,7 +117,7 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
         <PageTemplate>
             <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div className="flex flex-wrap gap-1 justify-center items-center bg-gray-100 md:mb-12 my-4">
-                    <SearchInput clssName="w-full max-w-sm" searchHandler={(s) => changeSearch(s)} queryString={search}/>
+                    <SearchInput clssName="w-full max-w-sm" searchHandler={handleChangeSearch} queryString={search}/>
                     <TagSelect
                         isMulti={false}
                         options={
@@ -129,20 +147,19 @@ function DrinkListPage<T extends API>({api}: DrinksPagePropsType<T>): React.JSX 
                             openDrinkDetail={openDrinkDetail}
                             onClose={handleCloseDetailModal}
                             onToggleFavourite={() => {
-                                const copy = deepCopy(openDrinkDetail);
+                                const copy = deepCopy(openDrinkDetail as Drink);
                                 copy.isFavourite = !copy.isFavourite;
-                                handleChangeFavourite(openDrinkDetail, copy.isFavourite);
+                                handleChangeFavourite(openDrinkDetail as Drink, copy.isFavourite);
                                 changeOpenDrinkDetail(copy);
                             }}
                             onRatingChange={handleOnRatingChange}
                             ratingStage={ratingState}
-                            handleAddToWeb3={(dr) => consol.log(dr)}
+                            onAddToWeb3={handleAddToWeb3}
                         />)}
                 </div>
             </div>
         </PageTemplate>
-    )
-    ;
+    );
 }
 
 export default DrinkListPage;
